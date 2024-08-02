@@ -3,7 +3,7 @@ const ProductModel= require("../modeles/ProductModel");
 const service = require("../Services/cartServices")
 const addtoCart = async (req, res) => {
   const { product_id, quantity } = req.body;
-  const id = req.user;
+  const id = req.user.userId;
 
   try {
     const cart = await CartModel.findOne({ id: id });
@@ -32,7 +32,7 @@ const addtoCart = async (req, res) => {
 };
 
 const displayProduct = async (req, res) => {
-  const id = req.user;
+  const id = req.user.userId;
   try {
     const products = await CartModel.findOne({ id });
     if (!products) {
@@ -47,7 +47,7 @@ const displayProduct = async (req, res) => {
 };
 //MAPPINNG THE CART PRODUCTS WITH ITS DETAILS
 const MapProduct = async (req, res) => {
-    const id = req.user;
+    const id = req.user.userId;
     let subtotal=0;
   
     try {
@@ -81,7 +81,7 @@ const MapProduct = async (req, res) => {
   };
 // DELETE PRODUCT
   const deleteProduct = async (req, res) => {
-    const userId = req.user; 
+    const userId = req.user.userId; 
     const  product_id  = req.body.id; 
 console.log(product_id,userId);
    

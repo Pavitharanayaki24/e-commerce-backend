@@ -50,23 +50,56 @@ const makeorder=async(req,res)=>{
     
 }
 
-/*const MyOrder = async(req,res)=>{
-     const user_id= req.user;
-     try{
-        const orders= await OrderModel.findOne({user_id});
-        if(!orders){
-            res.status(404).json({message:'No order found'});
-        }
-        const Orderdetails= await Promise.all(orders.products.map(async(item)=>{
-            const product= await productModel.findOne(id.item.product_id)
-              return{
+const MyOrder = async (req, res) => {
+  const user_id = req.user.userId;
+  console.log(user_id);
+  try {
+      const orders = await OrderModel.find({ user_id });
 
-              }
-        }))
-     }
-}*/
+      if (!orders.length) {
+          return res.status(404).json({ message: "No orders found" });
+      }
 
+      const orderDetails = await Promise.all(
+          orders.map(async (order) => {
+              let subtotal = 0;
+              const products = await Promise.all(
+                  order.products.map(async (productEntry) => {
+                      const product = await productModel.findOne({ id: productEntry.product_id });
 
+                      if (product) {
+                          const totalProduct = product.price * productEntry.quantity;
+                          subtotal += totalProduct;
 
+                          return {
+                              title: product.title,
+                              description: product.description,
+                              image: product.image,
+                              price: product.price,
+                              quantity: productEntry.quantity
+                          };
+                      } else {
+                          return null;
+                      }
+                  })
+              );
 
-module.exports = { makeorder };
+              return {
+                  Order_id: order.Order_id,
+                  products: products.filter(p => p !== null),  // Filter out null values
+                  subtotal,
+                  orderdate: order.Orderdate,
+                  estdate: order.EstdatedDate,
+                  status: order.Order_status
+              };
+          })
+      );
+
+      res.status(200).json({ message: "Order history retrieved", orders: orderDetails });
+  } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Server error" });
+  }
+};
+
+module.exports ={makeorder,MyOrder}

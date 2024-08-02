@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
+const { v4: uuidv4 } = require('uuid');
 
 const OrderSchema= mongoose.Schema({
+    Order_id: { 
+        type: String, 
+        default: uuidv4 
+    },
     cust_name:{
         type: 'string',
         required: true,
