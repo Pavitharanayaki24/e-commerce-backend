@@ -1,50 +1,51 @@
 const CartModel = require("../modeles/CartModel");
 const OrderModel = require("../modeles/OrderModel");
 const productModel = require("../modeles/ProductModel");
-const { GetProduct } = require("../Services/OrderServices");
 
-const Orderproduct = async (req, res) => {
-    const {user_id} = req.user;
-    const { cust_name, cust_phone, cust_address,user_email } = req.body;
 
+const makeorder=async(req,res)=>{
+    const userid=req.user.userId;
+    const user_email=req.user.email;
+    const {cust_name,cust_phone,cust_address}=req.body;
+    let OrderDate = new Date().toLocaleDateString("de-DE");
+    let currentDate = new Date();
+    currentDate.setDate(currentDate.getDate() + 10);
+    let EstdatedDate = currentDate.toLocaleDateString("de-DE");
+    console.log(EstdatedDate);
+    const Order_status="completed";
     try {
-        console.log(user_id);
-        const cart = await CartModel.findOne({ id: user_id });
-        console.log(cart);
-        if (!cart) {
-            return res.status(404).json({ message: "Cart not found" });
-        }
-        const { ProductDetails, subtotal } = await GetProduct(cart.products);
-        console.log(ProductDetails, subtotal);
-
-        const order = new OrderModel({
+        const cart = await CartModel .findOne({ userid });
+    if (cart) {
+      let subtotal = 0
+      await Promise.all(
+        cart.products.map(async (item) => {
+          const product = await productModel.findOne({ id: item.product_id });
+          subtotal += product.price * item.quantity
+        })
+      );
+      console.log(subtotal);
+        const order=new OrderModel({
+            user_id:userid,
+            user_email,
             cust_name,
             cust_phone,
             cust_address,
-            Orderdate: new Date(),
-            EstdatedDate: new Date().setDate(new Date().getDate()+10),
-            products: ProductDetails.map(product => ({
-                product_id: product.product_id,
-                quantity: product.quantity
-            })),
-            total_amount: subtotal,
-            Order_status: 'Pending',
-            user_id,
-            user_email
-        });
-
+            OrderDate,
+            EstdatedDate,
+            total_amount:subtotal,
+            Order_status,
+            products:cart.products});
         await order.save();
-        await CartModel.deleteOne({ id: user_id });
-
-        res.status(201).json({ message: 'Order created successfully', order });
-
-    } catch (err) {
-        console.error(err);
-        
-            res.status(500).json({ message: 'Server error' });
-        
+        await CartModel .deleteOne({userid});
+        res.status(200).json({message:"Order Placed..."});
+    }else{
+      res.status(404).json({message:"No Products found"});
     }
-};
+}catch(e){
+    res.status(500).send({error:e,message:"Can't place order"});
+}
+    
+}
 
 /*const MyOrder = async(req,res)=>{
      const user_id= req.user;
@@ -65,4 +66,4 @@ const Orderproduct = async (req, res) => {
 
 
 
-module.exports = { Orderproduct };
+module.exports = { makeorder };
