@@ -4,8 +4,8 @@ const productModel = require("../modeles/ProductModel");
 const { GetProduct } = require("../Services/OrderServices");
 
 const Orderproduct = async (req, res) => {
-    const {user_id,user_email} = req.user;
-    const { cust_name, cust_phone, cust_address } = req.body;
+    const {user_id} = req.user;
+    const { cust_name, cust_phone, cust_address,user_email } = req.body;
 
     try {
         console.log(user_id);
@@ -40,9 +40,9 @@ const Orderproduct = async (req, res) => {
 
     } catch (err) {
         console.error(err);
-        if (!res.headersSent) {
+        
             res.status(500).json({ message: 'Server error' });
-        }
+        
     }
 };
 
