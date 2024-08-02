@@ -1,10 +1,11 @@
 const CartModel = require("../modeles/CartModel");
 const OrderModel = require("../modeles/OrderModel");
+const productModel = require("../modeles/ProductModel");
 const { GetProduct } = require("../Services/OrderServices");
 
 const Orderproduct = async (req, res) => {
-    const user_id = req.user;
-    const { cust_name, cust_phone, cust_address, user_email } = req.body;
+    const {user_id,user_email} = req.user;
+    const { cust_name, cust_phone, cust_address } = req.body;
 
     try {
         console.log(user_id);
@@ -44,5 +45,24 @@ const Orderproduct = async (req, res) => {
         }
     }
 };
+
+/*const MyOrder = async(req,res)=>{
+     const user_id= req.user;
+     try{
+        const orders= await OrderModel.findOne({user_id});
+        if(!orders){
+            res.status(404).json({message:'No order found'});
+        }
+        const Orderdetails= await Promise.all(orders.products.map(async(item)=>{
+            const product= await productModel.findOne(id.item.product_id)
+              return{
+
+              }
+        }))
+     }
+}*/
+
+
+
 
 module.exports = { Orderproduct };

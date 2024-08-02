@@ -12,6 +12,7 @@ const auth = (req,res,next)=>{
         const decoded = jwt.verify(token,"secret_key");
         //console.log(decoded);//verifying the token with the secret key that is generated during token genration at login time
         req.user = decoded.userId;
+        req.user=decoded.emailID;
         //console.log(decoded.userID)//id will be generated and that will be passed to frontend
         next();//passing to next process
     }catch(err){
