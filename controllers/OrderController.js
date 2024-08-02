@@ -6,6 +6,7 @@ const productModel = require("../modeles/ProductModel");
 const makeorder=async(req,res)=>{
     const userid=req.user.userId;
     const user_email=req.user.email;
+    console.log(user_email,userid);
     const {cust_name,cust_phone,cust_address}=req.body;
     let OrderDate = new Date().toLocaleDateString("de-DE");
     let currentDate = new Date();
@@ -14,16 +15,18 @@ const makeorder=async(req,res)=>{
     console.log(EstdatedDate);
     const Order_status="completed";
     try {
-        const cart = await CartModel .findOne({ userid });
+        const cart=await CartModel.findOne({id:userid});
     if (cart) {
+        console.log(cart);
       let subtotal = 0
+      console.log(cart.products)
       await Promise.all(
         cart.products.map(async (item) => {
+            console.log(item)
           const product = await productModel.findOne({ id: item.product_id });
           subtotal += product.price * item.quantity
         })
       );
-      console.log(subtotal);
         const order=new OrderModel({
             user_id:userid,
             user_email,
@@ -36,7 +39,7 @@ const makeorder=async(req,res)=>{
             Order_status,
             products:cart.products});
         await order.save();
-        await CartModel .deleteOne({userid});
+        await CartModel .deleteOne({id:userid});
         res.status(200).json({message:"Order Placed..."});
     }else{
       res.status(404).json({message:"No Products found"});

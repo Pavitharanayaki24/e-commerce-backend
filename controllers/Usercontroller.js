@@ -6,7 +6,7 @@ const { v4: uuidv4 } = require('uuid');
 //LOGIN (getting acesses token)
 const login=async (req, res) => {
     const { email, password}=req.body;
-    const user=await UserModel.findOne({ email});
+    const user=await UserModel.findOne({email});
     try{
         if(!user){
              return res.status(404).json({ message:"user not found"});
